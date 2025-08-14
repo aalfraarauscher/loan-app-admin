@@ -11,14 +11,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { 
-  AlertCircle, 
   Save, 
   RefreshCw, 
   Palette,
   Type,
   Layout,
   Loader2,
-  CheckCircle2,
   Smartphone,
   Eye,
   Sun,
@@ -53,14 +51,14 @@ const themeSchema = z.object({
 type ThemeFormData = z.infer<typeof themeSchema>;
 
 const defaultTheme: ThemeFormData = {
-  primary: '#3B82F6',
-  secondary: '#8B5CF6',
-  accent: '#10B981',
-  background: '#FFFFFF',
-  foreground: '#1F2937',
-  muted: '#F3F4F6',
-  card: '#FFFFFF',
-  destructive: '#EF4444',
+  primary: '#007AFF',     // Blue - Main brand color for buttons and links
+  secondary: '#34C759',   // Green - Accent color for highlights
+  accent: '#34C759',      // Green - Success states and notifications
+  background: '#FFFFFF',  // White - Main background color
+  foreground: '#333333',  // Dark Gray - Main text color
+  muted: '#F8F9FA',      // Light Gray - Subtle backgrounds and borders
+  card: '#FFFFFF',       // White - Card and modal backgrounds
+  destructive: '#FF3B30', // Red - Error states and warnings
   fontFamily: 'Inter, system-ui, sans-serif',
   headingSize: 2,
   bodySize: 1,
@@ -68,6 +66,12 @@ const defaultTheme: ThemeFormData = {
 };
 
 const colorPresets = [
+  {
+    name: 'Default (iOS Style)',
+    primary: '#007AFF',
+    secondary: '#34C759',
+    accent: '#34C759',
+  },
   {
     name: 'Blue Ocean',
     primary: '#3B82F6',
@@ -85,12 +89,6 @@ const colorPresets = [
     primary: '#10B981',
     secondary: '#14B8A6',
     accent: '#84CC16',
-  },
-  {
-    name: 'Monochrome',
-    primary: '#6B7280',
-    secondary: '#9CA3AF',
-    accent: '#4B5563',
   },
 ];
 
@@ -126,12 +124,20 @@ export default function Theme() {
       
       if (data) {
         setCurrentTheme(data);
+        // Extract colors from the nested structure or use defaults
         const themeData = {
-          ...data.colors,
-          fontFamily: data.typography?.fontFamily || defaultTheme.fontFamily,
-          headingSize: parseFloat(data.typography?.headingSize) || defaultTheme.headingSize,
-          bodySize: parseFloat(data.typography?.bodySize) || defaultTheme.bodySize,
-          borderRadius: parseFloat(data.border_radius) || defaultTheme.borderRadius,
+          primary: data.colors?.primary || defaultTheme.primary,
+          secondary: data.colors?.secondary || defaultTheme.secondary,
+          accent: data.colors?.success || data.colors?.accent || defaultTheme.accent,
+          background: data.colors?.background?.primary || data.colors?.background || defaultTheme.background,
+          foreground: data.colors?.text?.primary || data.colors?.foreground || defaultTheme.foreground,
+          muted: data.colors?.background?.secondary || data.colors?.muted || defaultTheme.muted,
+          card: data.colors?.background?.primary || data.colors?.card || defaultTheme.card,
+          destructive: data.colors?.error || data.colors?.destructive || defaultTheme.destructive,
+          fontFamily: data.typography?.fontFamily?.regular || data.typography?.fontFamily || defaultTheme.fontFamily,
+          headingSize: data.typography?.fontSize?.xxl ? data.typography.fontSize.xxl / 24 : defaultTheme.headingSize,
+          bodySize: data.typography?.fontSize?.md ? data.typography.fontSize.md / 14 : defaultTheme.bodySize,
+          borderRadius: data.border_radius?.md ? data.border_radius.md / 8 : defaultTheme.borderRadius,
         };
         form.reset(themeData);
       }
@@ -144,54 +150,130 @@ export default function Theme() {
   };
 
   const onSubmit = async (data: ThemeFormData) => {
+    console.log('Theme form submitted with data:', data);
     setSaving(true);
     setError('');
     setSuccess('');
 
     try {
+      // Create properly nested theme structure matching React Native app
       const themeData = {
         theme_name: 'Custom Theme',
         colors: {
+          // Main colors
           primary: data.primary,
+          primaryLight: data.primary,
+          primaryDark: data.primary,
           secondary: data.secondary,
-          accent: data.accent,
-          background: data.background,
-          foreground: data.foreground,
-          muted: data.muted,
-          card: data.card,
-          destructive: data.destructive,
+          secondaryLight: data.secondary,
+          secondaryDark: data.secondary,
+          success: data.accent,
+          warning: '#FF9500',
+          error: data.destructive,
+          info: data.primary,
+          white: '#FFFFFF',
+          black: '#000000',
+          gray: '#8E8E93',
+          
+          // Nested background object
+          background: {
+            primary: data.background,
+            secondary: data.muted,
+            tertiary: '#F5F5F7'
+          },
+          
+          // Nested text object
+          text: {
+            primary: data.foreground,
+            secondary: '#666666',
+            tertiary: '#999999',
+            disabled: '#C7C7CC',
+            inverse: '#FFFFFF'
+          },
+          
+          // Nested border object
+          border: {
+            primary: '#E5E5E7',
+            secondary: '#E5E5E7',
+            focus: data.primary,
+            error: data.destructive
+          }
         },
         typography: {
-          fontFamily: data.fontFamily,
-          headingSize: `${data.headingSize}rem`,
-          bodySize: `${data.bodySize}rem`,
+          fontFamily: {
+            regular: data.fontFamily,
+            medium: data.fontFamily,
+            bold: data.fontFamily
+          },
+          fontSize: {
+            xs: 10,
+            sm: 12,
+            md: 14,
+            lg: 16,
+            xl: 20,
+            xxl: 24 * data.headingSize,
+            xxxl: 32 * data.headingSize
+          },
+          fontWeight: {
+            light: '300',
+            normal: '400',
+            medium: '500',
+            semibold: '600',
+            bold: '700'
+          }
         },
         spacing: {
-          unit: 4,
-          containerPadding: '1rem',
+          xs: 4,
+          sm: 8,
+          md: 12,
+          lg: 16,
+          xl: 20,
+          xxl: 24,
+          xxxl: 32,
+          huge: 48
         },
-        border_radius: `${data.borderRadius}rem`,
+        border_radius: {
+          sm: 4 * data.borderRadius,
+          md: 8 * data.borderRadius,
+          lg: 12 * data.borderRadius,
+          xl: 16 * data.borderRadius,
+          xxl: 20 * data.borderRadius,
+          round: 9999
+        },
         is_active: true,
         updated_at: new Date().toISOString(),
       };
 
       if (currentTheme) {
-        const { error } = await supabase
+        const { data: updatedData, error } = await supabase
           .from('app_theme')
           .update(themeData)
-          .eq('id', currentTheme.id);
+          .eq('id', currentTheme.id)
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Update local state with the returned data
+        if (updatedData) {
+          setCurrentTheme(updatedData);
+        }
       } else {
-        const { error } = await supabase
+        const { data: insertedData, error } = await supabase
           .from('app_theme')
-          .insert([themeData]);
+          .insert([themeData])
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Update local state with the returned data
+        if (insertedData) {
+          setCurrentTheme(insertedData);
+        }
       }
 
       setSuccess('Theme settings saved successfully!');
-      fetchThemeConfig();
     } catch (err: any) {
       console.error('Error saving theme:', err);
       setError(err.message || 'Failed to save theme settings');
@@ -234,8 +316,16 @@ export default function Theme() {
         </p>
       </div>
 
+      <Alert variant="info">
+        <AlertDescription>
+          <strong>Note:</strong> Currently, only <strong>Primary</strong> and <strong>Secondary</strong> colors 
+          affect the mobile app appearance. Other settings are saved for future use. 
+          Typography, spacing, and border radius use optimized defaults to ensure UI consistency.
+        </AlertDescription>
+      </Alert>
+
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="colors" className="space-y-6">
@@ -649,17 +739,13 @@ export default function Theme() {
 
               {error && (
                 <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  {error}
                 </Alert>
               )}
 
               {success && (
-                <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800 dark:text-green-200">
-                    {success}
-                  </AlertDescription>
+                <Alert variant="success">
+                  {success}
                 </Alert>
               )}
 
@@ -686,161 +772,6 @@ export default function Theme() {
           </Form>
         </div>
 
-        <div className="lg:sticky lg:top-8 h-fit">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>
-                    <Eye className="h-5 w-5 inline mr-2" />
-                    Live Preview
-                  </CardTitle>
-                  <CardDescription>
-                    See your theme in action
-                  </CardDescription>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                >
-                  {isDarkMode ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-border rounded-lg overflow-hidden">
-                <div className="bg-muted/50 px-3 py-2 border-b flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <div className="h-3 w-3 rounded-full bg-red-500" />
-                    <div className="h-3 w-3 rounded-full bg-yellow-500" />
-                    <div className="h-3 w-3 rounded-full bg-green-500" />
-                  </div>
-                  <div className="flex items-center gap-1 ml-auto">
-                    <Smartphone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Mobile Preview</span>
-                  </div>
-                </div>
-                
-                <div 
-                  className="p-6 space-y-4 min-h-[500px]"
-                  style={{
-                    backgroundColor: isDarkMode ? '#1F2937' : watchedValues.background,
-                    color: isDarkMode ? '#F9FAFB' : watchedValues.foreground,
-                    fontFamily: watchedValues.fontFamily,
-                  }}
-                >
-                  <h2 
-                    className="font-bold"
-                    style={{
-                      fontSize: `${watchedValues.headingSize}rem`,
-                      color: isDarkMode ? '#F9FAFB' : watchedValues.foreground,
-                    }}
-                  >
-                    Welcome Back!
-                  </h2>
-                  
-                  <p style={{ fontSize: `${watchedValues.bodySize}rem` }}>
-                    Your loan application dashboard
-                  </p>
-
-                  <div className="grid gap-3">
-                    <button
-                      className="px-4 py-2.5 font-medium transition-opacity hover:opacity-90"
-                      style={{
-                        backgroundColor: watchedValues.primary,
-                        color: watchedValues.background,
-                        borderRadius: `${watchedValues.borderRadius}rem`,
-                      }}
-                    >
-                      Apply for Loan
-                    </button>
-
-                    <button
-                      className="px-4 py-2.5 font-medium transition-opacity hover:opacity-90"
-                      style={{
-                        backgroundColor: watchedValues.secondary,
-                        color: watchedValues.background,
-                        borderRadius: `${watchedValues.borderRadius}rem`,
-                      }}
-                    >
-                      View Products
-                    </button>
-                  </div>
-
-                  <div 
-                    className="p-4"
-                    style={{
-                      backgroundColor: isDarkMode ? '#374151' : watchedValues.card,
-                      borderRadius: `${watchedValues.borderRadius}rem`,
-                      border: `1px solid ${isDarkMode ? '#4B5563' : watchedValues.muted}`,
-                    }}
-                  >
-                    <h3 
-                      className="font-semibold mb-2"
-                      style={{ 
-                        color: isDarkMode ? '#F9FAFB' : watchedValues.foreground,
-                        fontSize: `${watchedValues.bodySize * 1.25}rem`,
-                      }}
-                    >
-                      Quick Cash Loan
-                    </h3>
-                    <p style={{ 
-                      color: isDarkMode ? '#D1D5DB' : watchedValues.foreground,
-                      opacity: 0.8,
-                      fontSize: `${watchedValues.bodySize}rem`,
-                    }}>
-                      Get approved in minutes with our instant loan service.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div 
-                      className="p-3 text-center"
-                      style={{
-                        backgroundColor: watchedValues.accent,
-                        color: watchedValues.background,
-                        borderRadius: `${watchedValues.borderRadius}rem`,
-                      }}
-                    >
-                      <p className="font-medium text-sm">Approved</p>
-                    </div>
-
-                    <div 
-                      className="p-3 text-center"
-                      style={{
-                        backgroundColor: watchedValues.destructive,
-                        color: watchedValues.background,
-                        borderRadius: `${watchedValues.borderRadius}rem`,
-                      }}
-                    >
-                      <p className="font-medium text-sm">Rejected</p>
-                    </div>
-                  </div>
-
-                  <div 
-                    className="p-4"
-                    style={{
-                      backgroundColor: isDarkMode ? '#4B5563' : watchedValues.muted,
-                      borderRadius: `${watchedValues.borderRadius}rem`,
-                    }}
-                  >
-                    <p style={{ 
-                      color: isDarkMode ? '#F9FAFB' : watchedValues.foreground,
-                      fontSize: `${watchedValues.bodySize}rem`,
-                    }}>
-                      Support: support@loanapp.com
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

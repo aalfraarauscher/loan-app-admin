@@ -9,17 +9,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
-  AlertCircle, 
   Upload, 
   Save, 
-  CheckCircle2, 
   Loader2,
   Building2,
   Palette,
   Phone,
   Mail,
   FileText,
-  Image
+  Image,
+  DollarSign
 } from 'lucide-react';
 import {
   Form,
@@ -30,6 +29,41 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const CURRENCY_OPTIONS = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
+  { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+  { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+  { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
+  { code: 'EGP', symbol: 'E£', name: 'Egyptian Pound' },
+  { code: 'UGX', symbol: 'USh', name: 'Ugandan Shilling' },
+  { code: 'TZS', symbol: 'TSh', name: 'Tanzanian Shilling' },
+  { code: 'RWF', symbol: 'FRw', name: 'Rwandan Franc' },
+  { code: 'ETB', symbol: 'Br', name: 'Ethiopian Birr' },
+  { code: 'MAD', symbol: 'DH', name: 'Moroccan Dirham' },
+  { code: 'XOF', symbol: 'CFA', name: 'West African CFA Franc' },
+  { code: 'XAF', symbol: 'FCFA', name: 'Central African CFA Franc' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
+  { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal' },
+  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
+  { code: 'MXN', symbol: '$', name: 'Mexican Peso' },
+];
 
 const organizationSchema = z.object({
   organization_name: z.string().min(1, 'Organization name is required'),
@@ -39,6 +73,7 @@ const organizationSchema = z.object({
   support_phone: z.string().optional(),
   terms_url: z.string().url().optional().or(z.literal('')),
   privacy_url: z.string().url().optional().or(z.literal('')),
+  currency_code: z.string().min(3).max(3),
 });
 
 type OrganizationFormData = z.infer<typeof organizationSchema>;
@@ -51,17 +86,19 @@ export default function Organization() {
   const [currentConfig, setCurrentConfig] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
 
   const form = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
     defaultValues: {
       organization_name: '',
-      primary_color: '#3B82F6',
-      secondary_color: '#8B5CF6',
+      primary_color: '',
+      secondary_color: '',
       support_email: '',
       support_phone: '',
       terms_url: '',
       privacy_url: '',
+      currency_code: 'USD',
     },
   });
 
@@ -84,13 +121,15 @@ export default function Organization() {
         setLogoPreview(data.logo_url);
         form.reset({
           organization_name: data.organization_name || '',
-          primary_color: data.primary_color || '#3B82F6',
-          secondary_color: data.secondary_color || '#8B5CF6',
+          primary_color: data.primary_color || '',
+          secondary_color: data.secondary_color || '',
           support_email: data.support_email || '',
           support_phone: data.support_phone || '',
           terms_url: data.terms_url || '',
           privacy_url: data.privacy_url || '',
+          currency_code: data.currency_code || 'USD',
         });
+        setSelectedCurrency(data.currency_code || 'USD');
       }
     } catch (err: any) {
       console.error('Error fetching config:', err);
@@ -119,20 +158,32 @@ export default function Organization() {
   const uploadLogo = async (): Promise<string | null> => {
     if (!logoFile) return currentConfig?.logo_url || null;
 
+    // Delete old logo if it exists and is from our bucket
+    if (currentConfig?.logo_url && currentConfig.logo_url.includes('organization-logos')) {
+      const oldPath = currentConfig.logo_url.split('organization-logos/')[1];
+      if (oldPath) {
+        await supabase.storage
+          .from('organization-logos')
+          .remove([oldPath]);
+      }
+    }
+
     const fileExt = logoFile.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `logos/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('organization-assets')
-      .upload(filePath, logoFile);
+      .from('organization-logos')
+      .upload(filePath, logoFile, {
+        upsert: true
+      });
 
     if (uploadError) {
       throw uploadError;
     }
 
     const { data } = supabase.storage
-      .from('organization-assets')
+      .from('organization-logos')
       .getPublicUrl(filePath);
 
     return data.publicUrl;
@@ -146,29 +197,70 @@ export default function Organization() {
     try {
       const logoUrl = await uploadLogo();
       
+      // Find the currency symbol for the selected code
+      const currency = CURRENCY_OPTIONS.find(c => c.code === data.currency_code);
+      const currency_symbol = currency?.symbol || '$';
+      
       const configData = {
         ...data,
         logo_url: logoUrl,
+        currency_symbol,
         updated_at: new Date().toISOString(),
       };
 
       if (currentConfig) {
-        const { error } = await supabase
+        const { data: updatedData, error } = await supabase
           .from('organization_config')
           .update(configData)
-          .eq('id', currentConfig.id);
-
+          .eq('id', currentConfig.id)
+          .select()
+          .single();
         if (error) throw error;
+        
+        // Update local state with the returned data to ensure we have the latest
+        if (updatedData) {
+          setCurrentConfig(updatedData);
+          setLogoPreview(updatedData.logo_url);
+          // Also update the form with the new values to ensure sync
+          form.reset({
+            organization_name: updatedData.organization_name || '',
+            primary_color: updatedData.primary_color || '',
+            secondary_color: updatedData.secondary_color || '',
+            support_email: updatedData.support_email || '',
+            support_phone: updatedData.support_phone || '',
+            terms_url: updatedData.terms_url || '',
+            privacy_url: updatedData.privacy_url || '',
+          });
+        }
       } else {
-        const { error } = await supabase
+        const { data: insertedData, error } = await supabase
           .from('organization_config')
-          .insert([configData]);
+          .insert([configData])
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Update local state immediately with the returned data
+        if (insertedData) {
+          setCurrentConfig(insertedData);
+          setLogoPreview(insertedData.logo_url);
+          // Also update the form with the new values to ensure sync
+          form.reset({
+            organization_name: insertedData.organization_name || '',
+            primary_color: insertedData.primary_color || '',
+            secondary_color: insertedData.secondary_color || '',
+            support_email: insertedData.support_email || '',
+            support_phone: insertedData.support_phone || '',
+            terms_url: insertedData.terms_url || '',
+            privacy_url: insertedData.privacy_url || '',
+          });
+        }
       }
 
       setSuccess('Organization settings saved successfully!');
-      fetchOrganizationConfig();
+      // Don't reset the form - keep the saved values
+      // fetchOrganizationConfig();
     } catch (err: any) {
       console.error('Error saving config:', err);
       setError(err.message || 'Failed to save organization settings');
@@ -258,18 +350,24 @@ export default function Organization() {
                       <Image className="h-8 w-8 text-muted-foreground/50" />
                     </div>
                   )}
-                  <label className="cursor-pointer">
+                  <div>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleLogoChange}
                       className="hidden"
+                      id="logo-upload"
                     />
-                    <Button type="button" variant="outline" size="sm">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('logo-upload')?.click()}
+                    >
                       <Upload className="h-4 w-4 mr-2" />
                       Upload Logo
                     </Button>
-                  </label>
+                  </div>
                 </div>
                 <FormDescription>
                   Recommended: Square image, at least 512x512px, max 2MB
@@ -346,6 +444,64 @@ export default function Organization() {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-muted-foreground" />
+                <CardTitle>Currency Settings</CardTitle>
+              </div>
+              <CardDescription>
+                Set the default currency for loan amounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="currency_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedCurrency(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CURRENCY_OPTIONS.map((currency) => (
+                          <SelectItem key={currency.code} value={currency.code}>
+                            <span className="font-mono mr-2">{currency.symbol}</span>
+                            {currency.name} ({currency.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      This currency will be used for all loan amounts in the app
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {selectedCurrency && (
+                <div className="p-3 bg-muted rounded-md">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Preview:</strong>{' '}
+                    {CURRENCY_OPTIONS.find(c => c.code === selectedCurrency)?.symbol}
+                    10,000
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -468,17 +624,13 @@ export default function Organization() {
 
           {error && (
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {success && (
-            <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800 dark:text-green-200">
-                {success}
-              </AlertDescription>
+            <Alert variant="success">
+              <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}
 

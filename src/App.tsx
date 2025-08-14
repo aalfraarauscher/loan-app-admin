@@ -5,6 +5,9 @@ import Dashboard from './pages/Dashboard';
 import Organization from './pages/Organization';
 import Theme from './pages/Theme';
 import Products from './pages/Products';
+import Integrations from './pages/Integrations';
+import Users from './pages/Users';
+import Applications from './pages/Applications';
 import Layout from './components/layout/Layout';
 
 function App() {
@@ -35,6 +38,9 @@ function App() {
           <Route path="organization" element={<Organization />} />
           <Route path="theme" element={<Theme />} />
           <Route path="products" element={<Products />} />
+          <Route path="applications" element={<Applications />} />
+          <Route path="integrations" element={<Integrations />} />
+          <Route path="users" element={<Users />} />
         </Route>
       </Routes>
     </Router>

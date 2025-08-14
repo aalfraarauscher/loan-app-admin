@@ -265,21 +265,22 @@ const OrganizationForm = () => {
 - Optimize images with proper formats
 - Enable gzip compression
 
-## Testing Strategy
+## Testing
 
-### Unit Tests
-- Test form validation logic
-- Test utility functions
-- Test custom hooks
+Comprehensive testing documentation and implementation details are available in [`TEST_README.md`](./TEST_README.md).
 
-### Integration Tests
-- Test auth flow
-- Test CRUD operations
-- Test real-time updates
+The project includes:
+- Unit tests with Vitest and React Testing Library
+- API mocking with MSW (Mock Service Worker)
+- Tests specifically addressing common issues (uncontrolled inputs, form persistence, storage operations)
+- 28+ tests covering authentication, organization settings, product management, and login flows
 
-### E2E Tests
-- Test complete user journeys
-- Test configuration changes reflect in mobile app
+Run tests with:
+```bash
+npm test          # Watch mode
+npm run test:run  # Single run
+npm run test:ui   # Visual UI
+```
 
 ## Performance Optimization
 

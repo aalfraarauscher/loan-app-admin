@@ -13,7 +13,8 @@ import {
   Activity,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ import { cn } from '@/lib/utils';
 
 interface RecentActivity {
   id: string;
-  type: 'product_created' | 'product_updated' | 'config_changed' | 'theme_updated';
+  type: 'product_created' | 'product_updated' | 'config_changed' | 'theme_updated' | 'application_submitted' | 'application_approved';
   message: string;
   timestamp: string;
   status: 'success' | 'warning' | 'info';
@@ -37,6 +38,9 @@ export default function Dashboard() {
     totalProducts: 0,
     activeProducts: 0,
     totalApplications: 0,
+    pendingApplications: 0,
+    approvedApplications: 0,
+    totalLoanValue: 0,
     totalUsers: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -85,6 +89,23 @@ export default function Dashboard() {
         .from('loan_applications')
         .select('*', { count: 'exact', head: true });
 
+      const { count: pendingCount } = await supabase
+        .from('loan_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const { count: approvedCount } = await supabase
+        .from('loan_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+
+      const { data: loanAmounts } = await supabase
+        .from('loan_applications')
+        .select('amount')
+        .in('status', ['approved', 'disbursed']);
+
+      const totalLoanValue = loanAmounts?.reduce((sum, app) => sum + Number(app.amount), 0) || 0;
+
       const { count: userCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
@@ -93,6 +114,9 @@ export default function Dashboard() {
         totalProducts: productCount || 0,
         activeProducts: activeProductCount || 0,
         totalApplications: applicationCount || 0,
+        pendingApplications: pendingCount || 0,
+        approvedApplications: approvedCount || 0,
+        totalLoanValue,
         totalUsers: userCount || 0,
       });
     } catch (error) {
@@ -102,51 +126,57 @@ export default function Dashboard() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(0)}K`;
+    }
+    return `$${amount.toFixed(0)}`;
+  };
+
+  const approvalRate = stats.totalApplications > 0 
+    ? Math.round((stats.approvedApplications / stats.totalApplications) * 100)
+    : 0;
+
   const statCards = [
+    {
+      title: 'Total Applications',
+      value: stats.totalApplications,
+      icon: TrendingUp,
+      description: `${stats.pendingApplications} pending`,
+      trend: { value: 28, isPositive: true }
+    },
+    {
+      title: 'Loan Value',
+      value: formatCurrency(stats.totalLoanValue),
+      icon: DollarSign,
+      description: 'Approved & disbursed',
+      trend: { value: 15, isPositive: true }
+    },
+    {
+      title: 'Approval Rate',
+      value: `${approvalRate}%`,
+      icon: CheckCircle2,
+      description: `${stats.approvedApplications} approved`,
+      trend: { value: approvalRate > 50 ? 5 : -5, isPositive: approvalRate > 50 }
+    },
     {
       title: 'Total Users',
       value: stats.totalUsers,
       icon: Users,
-      description: 'Active app users',
+      description: 'Registered users',
       trend: { value: 12, isPositive: true }
-    },
-    {
-      title: 'Loan Applications',
-      value: stats.totalApplications,
-      icon: TrendingUp,
-      description: 'Total submissions',
-      trend: { value: 8, isPositive: true }
-    },
-    {
-      title: 'Active Products',
-      value: `${stats.activeProducts}/${stats.totalProducts}`,
-      icon: Package,
-      description: 'Available products',
-      trend: { value: 0, isPositive: true }
-    },
-    {
-      title: 'Approval Rate',
-      value: '78%',
-      icon: DollarSign,
-      description: 'Last 30 days',
-      trend: { value: 5, isPositive: false }
     },
   ];
 
   const quickActions = [
     {
-      title: 'Organization Settings',
-      description: 'Configure branding and company info',
-      icon: Building2,
-      href: '/organization',
+      title: 'Loan Applications',
+      description: 'Review and manage applications',
+      icon: FileText,
+      href: '/applications',
       color: 'text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400'
-    },
-    {
-      title: 'Theme Customization',
-      description: 'Personalize app appearance',
-      icon: Palette,
-      href: '/theme',
-      color: 'text-purple-600 bg-purple-50 dark:bg-purple-950 dark:text-purple-400'
     },
     {
       title: 'Loan Products',
@@ -156,10 +186,17 @@ export default function Dashboard() {
       color: 'text-green-600 bg-green-50 dark:bg-green-950 dark:text-green-400'
     },
     {
-      title: 'System Settings',
-      description: 'Advanced configuration',
-      icon: Settings,
-      href: '#',
+      title: 'Organization Settings',
+      description: 'Configure branding and company info',
+      icon: Building2,
+      href: '/organization',
+      color: 'text-purple-600 bg-purple-50 dark:bg-purple-950 dark:text-purple-400'
+    },
+    {
+      title: 'Theme Customization',
+      description: 'Personalize app appearance',
+      icon: Palette,
+      href: '/theme',
       color: 'text-orange-600 bg-orange-50 dark:bg-orange-950 dark:text-orange-400'
     },
   ];

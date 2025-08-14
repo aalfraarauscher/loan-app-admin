@@ -50,8 +50,6 @@ import {
   Trash2,
   Save,
   Package,
-  AlertCircle,
-  CheckCircle2,
   MoreHorizontal,
   Loader2,
   DollarSign,
@@ -61,6 +59,7 @@ import {
   FileText,
   TrendingUp,
   Search,
+  CheckCircle2,
 } from 'lucide-react';
 import type { LoanProduct } from '@/types';
 import { cn } from '@/lib/utils';
@@ -291,17 +290,13 @@ export default function Products() {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {success && (
-        <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
-            {success}
-          </AlertDescription>
+        <Alert variant="success">
+          <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}
 
@@ -423,7 +418,7 @@ export default function Products() {
                     </TableCell>
                     <TableCell>
                       <Switch
-                        checked={product.is_active}
+                        checked={product.is_active || false}
                         onCheckedChange={() => toggleProductStatus(product)}
                       />
                     </TableCell>
