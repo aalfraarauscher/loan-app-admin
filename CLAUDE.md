@@ -1,183 +1,68 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the Loan App Admin interface.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
 This is the admin web interface for managing the white-label loan application system. It allows administrators to configure organization settings, customize themes, and manage loan products without touching code.
 
-## Current Status (August 12, 2025)
-
-✅ **Completed Features:**
-- Full admin interface with modern shadcn/ui components
-- Authentication system with Supabase Auth and admin_users table
-- Organization configuration management with logo upload
-- Theme customization with live preview and dark mode toggle
-- Loan products CRUD operations with search and filters
-- Dashboard with statistics, quick actions, and system health monitoring
-- Responsive design for all screen sizes
-- Row Level Security (RLS) policies for secure data access
-
-### Pages Implemented:
-1. **Login Page** - Modern authentication with email/password
-2. **Dashboard** - Stats cards, quick actions, recent activity, system health
-3. **Organization Settings** - Logo upload, branding, contact info, legal URLs
-4. **Theme Customization** - Color presets, typography, layout settings with live preview
-5. **Products Management** - Table view with search, CRUD operations, status toggles
-
-### UI Components:
-All pages use modern shadcn/ui components including:
-- Cards, Buttons, Forms, Inputs, Dialogs
-- Tables with search and filters
-- Dropdown menus with actions
-- Alerts and notifications
-- Loading states with skeletons
-- Tabs, Sliders, Switches
-- Badges and Separators
-
 ## Tech Stack
 
 - **Build Tool**: Vite (fast development, HMR)
 - **Framework**: React 18 with TypeScript
-- **UI Components**: shadcn/ui (fully implemented)
-- **Styling**: Tailwind CSS v4 (with @theme configuration)
+- **UI Components**: shadcn/ui (modern component library)
+- **Styling**: Tailwind CSS v4 (uses `@theme` configuration in CSS, not JS config)
 - **Forms**: React Hook Form + Zod
 - **Database**: Supabase (shared with mobile app)
-- **Authentication**: Supabase Auth
+- **Authentication**: Supabase Auth with admin_users table
 - **Routing**: React Router v6
 - **State Management**: Zustand (for complex state)
-- **Deployment**: Vercel
+- **Testing**: Vitest + React Testing Library + MSW
 
 ## Commands
 
 ### Development
-- **Install dependencies**: `npm install`
-- **Start dev server**: `npm run dev`
-- **Build for production**: `npm run build`
-- **Preview production build**: `npm run preview`
-- **Type checking**: `npm run type-check`
-
-### shadcn/ui Components (when needed)
 ```bash
-# Initialize shadcn
-npx shadcn-ui@latest init
-
-# Add components
-npx shadcn-ui@latest add button
-npx shadcn-ui@latest add form
-npx shadcn-ui@latest add input
-npx shadcn-ui@latest add card
-npx shadcn-ui@latest add table
-npx shadcn-ui@latest add dialog
+npm install          # Install dependencies
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run type-check   # Type checking
+npm run lint         # Run ESLint
 ```
 
-## Project Structure
-
-```
-src/
-├── components/       # Reusable components
-│   ├── ui/          # shadcn/ui components
-│   ├── layout/      # Layout components (sidebar, header)
-│   ├── forms/       # Form components
-│   └── preview/     # Live preview components
-├── pages/           # Page components
-│   ├── Dashboard.tsx
-│   ├── Organization.tsx
-│   ├── Theme.tsx
-│   ├── Products.tsx
-│   └── Login.tsx
-├── hooks/           # Custom React hooks
-│   ├── useAuth.ts
-│   ├── useConfig.ts
-│   └── useProducts.ts
-├── lib/             # Utilities and configurations
-│   ├── supabase.ts
-│   ├── utils.ts
-│   └── validators.ts
-├── types/           # TypeScript type definitions
-└── App.tsx          # Main app component with routing
+### Testing
+```bash
+npm test            # Watch mode
+npm run test:run    # Single run
+npm run test:ui     # Visual UI
+npm run test:coverage # With coverage
 ```
 
-## Environment Variables
-
-Required in `.env.local`:
-```env
-VITE_SUPABASE_URL=https://bnltxczlwghicqychkxx.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key
+### shadcn/ui Components
+```bash
+npx shadcn@latest add [component-name]  # Add new components as needed
 ```
 
-## Important Notes
+## Project Architecture
 
-### Tailwind CSS v4
-This project uses Tailwind CSS v4 (alpha) which has different configuration:
-- Uses `@import "tailwindcss"` instead of `@tailwind` directives
-- Configuration via `@theme` in CSS instead of JS config files
-- PostCSS config must use `@tailwindcss/postcss`
+The codebase follows a feature-based structure with clear separation of concerns:
 
-### Admin User Setup
-To create an admin user:
-1. User must first exist in auth.users (Supabase Auth)
-2. Then add to admin_users table with appropriate role
-3. RLS policies allow authenticated users to read admin_users
+### Core Modules
+- **Authentication**: Session management via Supabase Auth with admin role verification
+- **Configuration Management**: Organization settings and theme customization with real-time preview
+- **Product Management**: CRUD operations for loan products with search/filter/status management
+- **Dashboard**: Analytics, system health monitoring, and quick actions
 
-## Database Schema
+### Data Flow
+1. **Supabase Integration**: All data operations go through `lib/supabase.ts`
+2. **Custom Hooks**: Business logic encapsulated in hooks (`useAuth`, `useConfig`, `useProducts`)
+3. **Form Handling**: React Hook Form with Zod validation for all user inputs
+4. **Error Boundaries**: Graceful error handling with user-friendly messages
 
-This admin interface manages the following tables in Supabase:
+### Key Implementation Patterns
 
-### Configuration Tables
-- `organization_config` - Organization branding and settings
-- `app_theme` - Theme customization (colors, typography, spacing)
-- `loan_products` - Loan product definitions
-
-### Admin Tables
-- `admin_users` - Admin user accounts with roles (✅ Created)
-- `config_audit_log` - Track all configuration changes (TODO)
-
-## Implemented Features
-
-### 1. Organization Configuration ✅
-- [x] Edit organization name
-- [x] Upload/change logo (Supabase Storage)
-- [x] Set primary/secondary colors
-- [x] Configure support contact info
-- [x] Set terms & privacy URLs
-
-### 2. Theme Customization ✅
-- [x] Visual color picker for all theme colors
-- [x] Typography settings (font sizes with sliders)
-- [x] Spacing configuration
-- [x] Border radius preferences
-- [x] Live preview panel with mobile view
-- [x] Color presets (Blue Ocean, Sunset, Forest, Monochrome)
-
-### 3. Loan Products Management ✅
-- [x] List all products with search/filter
-- [x] Add new loan product
-- [x] Edit product details
-- [x] Basic eligibility criteria
-- [x] Required documents (basic)
-- [ ] Reorder products (drag & drop) - TODO
-- [x] Activate/deactivate products
-
-### 4. Dashboard ✅
-- [x] User statistics
-- [x] Application metrics
-- [x] Product performance indicators
-- [x] Recent activity log
-- [x] System health monitoring
-- [x] Quick actions panel
-
-### 5. Authentication & Security ✅
-- [x] Email/password login for admins
-- [x] Role-based access (super_admin, admin, viewer)
-- [x] Session management
-- [x] RLS policies for data protection
-- [ ] Audit logging - TODO
-
-## Implementation Guidelines
-
-### Forms
-Use React Hook Form with Zod validation:
+#### Forms with Validation
 ```typescript
 const schema = z.object({
   name: z.string().min(1, 'Required'),
@@ -185,127 +70,83 @@ const schema = z.object({
 });
 
 const form = useForm({
-  resolver: zodResolver(schema)
+  resolver: zodResolver(schema),
+  defaultValues: data || {}
 });
 ```
 
-### API Calls
-Always handle loading and error states:
+#### Controlled Components (prevent uncontrolled warnings)
 ```typescript
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
-
-try {
-  setLoading(true);
-  const { data, error } = await supabase.from('table').select();
-  if (error) throw error;
-  // handle data
-} catch (err) {
-  setError(err.message);
-} finally {
-  setLoading(false);
-}
+// Always provide fallback for boolean values
+<Switch checked={value || false} />
 ```
 
-### Real-time Updates
-Subscribe to configuration changes:
+#### Storage Operations
 ```typescript
-useEffect(() => {
-  const subscription = supabase
-    .channel('config-changes')
-    .on('postgres_changes', 
-      { event: '*', schema: 'public', table: 'organization_config' },
-      (payload) => {
-        // Handle real-time update
-      }
-    )
-    .subscribe();
-
-  return () => {
-    subscription.unsubscribe();
-  };
-}, []);
+// Use consistent bucket name
+const BUCKET_NAME = 'organization-logos';
+await supabase.storage.from(BUCKET_NAME).upload(path, file, { upsert: true });
 ```
 
-### Component Patterns
-Prefer composition and custom hooks:
-```typescript
-// Custom hook for config
-const useOrganizationConfig = () => {
-  const [config, setConfig] = useState(null);
-  // fetch and manage config
-  return { config, updateConfig, loading };
-};
+## Environment Setup
 
-// Use in component
-const OrganizationForm = () => {
-  const { config, updateConfig } = useOrganizationConfig();
-  // render form
-};
+Required `.env.local`:
+```env
+VITE_SUPABASE_URL=https://bnltxczlwghicqychkxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+## Database Schema
+
+### Required Tables
+- `organization_config` - Organization branding and settings
+- `app_theme` - Theme customization (colors, typography, spacing)
+- `loan_products` - Loan product definitions
+- `admin_users` - Admin user accounts with roles (super_admin, admin, viewer)
+
+All tables must have Row Level Security (RLS) policies enabled.
+
+## Tailwind CSS v4 Specifics
+
+This project uses Tailwind CSS v4 alpha which differs from v3:
+- Uses `@import "tailwindcss"` instead of `@tailwind` directives
+- Configuration via `@theme` blocks in CSS files
+- PostCSS must use `@tailwindcss/postcss` package
+
+## Testing Strategy
+
+The project has comprehensive test coverage (28+ tests) specifically addressing:
+- Uncontrolled input warnings (Switch components with undefined values)
+- Form persistence after save operations
+- Storage bucket operations with correct bucket names
+- Authentication flows and role verification
+
+Test files follow the pattern: `[component]/__tests__/[component].test.tsx`
+
+## Common Issues & Solutions
+
+### Form Values Reset After Save
+Update local state with saved data instead of refetching:
+```typescript
+setCurrentConfig(updatedData);  // Don't call fetchConfig()
+```
+
+### Storage Bucket Errors
+Ensure bucket exists in Supabase and use consistent naming:
+```typescript
+const BUCKET_NAME = 'organization-logos';  // Must match Supabase bucket
+```
+
+### Uncontrolled Component Warnings
+Always provide default values for form controls:
+```typescript
+<Switch checked={product.is_active || false} />
 ```
 
 ## Security Considerations
 
-1. **Row Level Security**: All tables must have RLS policies
-2. **Admin Verification**: Check admin role on every request
-3. **Input Validation**: Validate all inputs with Zod
-4. **File Upload**: Validate file types and sizes for logos
-5. **Audit Logging**: Track all configuration changes
-
-## Deployment
-
-### Vercel Deployment
-1. Connect GitHub repository
-2. Set environment variables in Vercel dashboard
-3. Deploy with automatic builds on push
-
-### Build Optimization
-- Use dynamic imports for large components
-- Implement code splitting by route
-- Optimize images with proper formats
-- Enable gzip compression
-
-## Testing
-
-Comprehensive testing documentation and implementation details are available in [`TEST_README.md`](./TEST_README.md).
-
-The project includes:
-- Unit tests with Vitest and React Testing Library
-- API mocking with MSW (Mock Service Worker)
-- Tests specifically addressing common issues (uncontrolled inputs, form persistence, storage operations)
-- 28+ tests covering authentication, organization settings, product management, and login flows
-
-Run tests with:
-```bash
-npm test          # Watch mode
-npm run test:run  # Single run
-npm run test:ui   # Visual UI
-```
-
-## Performance Optimization
-
-1. **Caching**: Cache configuration data locally
-2. **Debouncing**: Debounce search and filter inputs
-3. **Pagination**: Paginate large lists (products, users)
-4. **Lazy Loading**: Lazy load routes and heavy components
-5. **Optimistic Updates**: Show changes immediately, sync in background
-
-## Next Steps
-
-1. ~~Install and configure shadcn/ui components~~ ✅
-2. ~~Implement organization configuration form~~ ✅
-3. ~~Build theme editor with live preview~~ ✅
-4. ~~Create product management interface~~ ✅
-5. Add advanced admin user management
-6. Implement audit logging for all changes
-7. Add drag & drop reordering for products
-8. Deploy to Vercel
-9. Add real-time updates between admin and mobile app
-10. Implement advanced analytics dashboard
-
-## Related Resources
-
-- Main mobile app: `/loan_app`
-- Supabase project: `bnltxczlwghicqychkxx`
-- Database migrations: Check mobile app for schema
-- API documentation: Supabase auto-generated docs
+- All admin operations require authentication check
+- RLS policies must be configured for all tables
+- File uploads validate type and size
+- Input validation with Zod on all forms
+- Never expose service role key in frontend

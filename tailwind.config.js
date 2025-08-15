@@ -50,9 +50,26 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xs: "var(--radius-xs)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        '2xl': "var(--radius-2xl)",
+        full: "var(--radius-full)",
+      },
+      transitionDuration: {
+        xs: 'var(--duration-75)',
+        sm: 'var(--duration-100)',
+        md: 'var(--duration-200)',
+        lg: 'var(--duration-300)',
+        xl: 'var(--duration-500)',
+      },
+      transitionTimingFunction: {
+        linear: 'var(--ease-linear)',
+        in: 'var(--ease-in)',
+        out: 'var(--ease-out)',
+        'in-out': 'var(--ease-in-out)',
       },
       keyframes: {
         "accordion-down": {
@@ -65,8 +82,8 @@ export default {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down var(--duration-200) var(--ease-out)",
+        "accordion-up": "accordion-up var(--duration-200) var(--ease-out)",
       },
     },
   },
