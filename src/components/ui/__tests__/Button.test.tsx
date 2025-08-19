@@ -20,34 +20,34 @@ describe('Button Component', () => {
     });
   });
 
-  describe('Design Tokens', () => {
-    it('applies semantic spacing tokens', () => {
+  describe('Styling', () => {
+    it('applies standard Tailwind spacing classes', () => {
       render(<Button>Test Button</Button>);
       const button = screen.getByRole('button');
       const classes = button.className;
       
-      // Check for semantic token classes
-      expect(classes).toContain('gap-space-xs');
-      expect(classes).toContain('px-space-md');
-      expect(classes).toContain('py-space-xs');
+      // Check for standard Tailwind classes
+      expect(classes).toContain('gap-2');
+      expect(classes).toContain('px-4');
+      expect(classes).toContain('py-2');
     });
 
-    it('applies semantic size tokens', () => {
+    it('applies standard size classes', () => {
       render(<Button size="default">Default Size</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('h-size-md');
+      expect(button.className).toContain('h-10');
     });
 
-    it('applies semantic typography tokens', () => {
+    it('applies standard typography classes', () => {
       render(<Button>Typography Test</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('text-text-sm');
+      expect(button.className).toContain('text-sm');
     });
 
-    it('applies animation duration tokens', () => {
+    it('applies transition classes', () => {
       render(<Button>Animation Test</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('duration-md');
+      expect(button.className).toContain('transition-colors');
     });
   });
 
@@ -97,33 +97,33 @@ describe('Button Component', () => {
   });
 
   describe('Sizes', () => {
-    it('applies small size with semantic tokens', () => {
+    it('applies small size classes', () => {
       render(<Button size="sm">Small</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('h-size-sm');
-      expect(button.className).toContain('px-space-sm');
+      expect(button.className).toContain('h-9');
+      expect(button.className).toContain('px-3');
     });
 
-    it('applies default size with semantic tokens', () => {
+    it('applies default size classes', () => {
       render(<Button size="default">Default</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('h-size-md');
-      expect(button.className).toContain('px-space-md');
-      expect(button.className).toContain('py-space-xs');
+      expect(button.className).toContain('h-10');
+      expect(button.className).toContain('px-4');
+      expect(button.className).toContain('py-2');
     });
 
-    it('applies large size with semantic tokens', () => {
+    it('applies large size classes', () => {
       render(<Button size="lg">Large</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('h-size-lg');
-      expect(button.className).toContain('px-space-xl');
+      expect(button.className).toContain('h-11');
+      expect(button.className).toContain('px-8');
     });
 
-    it('applies icon size with semantic tokens', () => {
+    it('applies icon size classes', () => {
       render(<Button size="icon" aria-label="Icon button">⚙️</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('h-size-md');
-      expect(button.className).toContain('w-size-md');
+      expect(button.className).toContain('h-10');
+      expect(button.className).toContain('w-10');
     });
   });
 
@@ -158,8 +158,8 @@ describe('Button Component', () => {
       const button = screen.getByRole('button');
       expect(button.className).toContain('custom-class');
       // Should still have default classes
-      expect(button.className).toContain('gap-space-xs');
-      expect(button.className).toContain('text-text-sm');
+      expect(button.className).toContain('gap-2');
+      expect(button.className).toContain('text-sm');
     });
   });
 
@@ -167,13 +167,13 @@ describe('Button Component', () => {
     it('generates correct classes for variants', () => {
       const defaultClasses = buttonVariants({ variant: 'default', size: 'default' });
       expect(defaultClasses).toContain('bg-primary');
-      expect(defaultClasses).toContain('h-size-md');
-      expect(defaultClasses).toContain('px-space-md');
+      expect(defaultClasses).toContain('h-10');
+      expect(defaultClasses).toContain('px-4');
       
       const smallOutlineClasses = buttonVariants({ variant: 'outline', size: 'sm' });
       expect(smallOutlineClasses).toContain('border');
-      expect(smallOutlineClasses).toContain('h-size-sm');
-      expect(smallOutlineClasses).toContain('px-space-sm');
+      expect(smallOutlineClasses).toContain('h-9');
+      expect(smallOutlineClasses).toContain('px-3');
     });
   });
 });

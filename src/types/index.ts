@@ -80,3 +80,30 @@ export interface ConfigAuditLog {
   new_value?: Record<string, any>
   created_at: string
 }
+
+export interface DocumentType {
+  id: string
+  organization_id: string
+  name: string
+  description?: string
+  instructions?: string
+  file_types: string[]
+  max_size_mb: number
+  validity_days?: number
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface LoanProductDocument {
+  id: string
+  loan_product_id: string
+  document_type_id: string
+  is_mandatory: boolean
+  custom_instructions?: string
+  display_order: number
+  created_at: string
+  updated_at: string
+  document_type?: DocumentType
+}

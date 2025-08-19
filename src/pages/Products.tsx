@@ -61,8 +61,10 @@ import {
   Search,
   CheckCircle2,
 } from 'lucide-react';
-import type { LoanProduct } from '@/types';
+import type { LoanProduct, LoanProductDocument } from '@/types';
 import { cn } from '@/lib/utils';
+import { DocumentSelector } from '@/components/DocumentSelector';
+import { useDocumentTypes } from '@/hooks/useDocumentTypes';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
@@ -90,6 +92,10 @@ export default function Products() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDocuments, setSelectedDocuments] = useState<Partial<LoanProductDocument>[]>([]);
+  const [productDocuments, setProductDocuments] = useState<LoanProductDocument[]>([]);
+  
+  const { documentTypes } = useDocumentTypes();
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -131,8 +137,28 @@ export default function Products() {
     }
   };
 
+  const fetchProductDocuments = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('loan_product_documents')
+        .select(`
+          *,
+          document_type:document_types(*)
+        `)
+        .eq('loan_product_id', productId)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.error('Error fetching product documents:', err);
+      return [];
+    }
+  };
+
   const openAddDialog = () => {
     setEditingProduct(null);
+    setSelectedDocuments([]);
     form.reset({
       name: '',
       description: '',
@@ -150,8 +176,20 @@ export default function Products() {
     setDialogOpen(true);
   };
 
-  const openEditDialog = (product: LoanProduct) => {
+  const openEditDialog = async (product: LoanProduct) => {
     setEditingProduct(product);
+    
+    // Fetch existing document requirements
+    const docs = await fetchProductDocuments(product.id);
+    setSelectedDocuments(docs.map(d => ({
+      loan_product_id: d.loan_product_id,
+      document_type_id: d.document_type_id,
+      document_type: d.document_type,
+      is_mandatory: d.is_mandatory,
+      custom_instructions: d.custom_instructions,
+      display_order: d.display_order,
+    })));
+    
     form.reset({
       name: product.name,
       description: product.description,
@@ -175,14 +213,21 @@ export default function Products() {
     setSuccess('');
 
     try {
+      // Prepare document names for backward compatibility
+      const documentNames = selectedDocuments
+        .filter(d => d.document_type)
+        .map(d => d.document_type!.name);
+      
       const productData = {
         ...data,
         eligibility_criteria: {},
-        required_documents: [],
+        required_documents: documentNames,
         is_active: true,
         display_order: editingProduct?.display_order || products.length,
         updated_at: new Date().toISOString(),
       };
+
+      let productId: string;
 
       if (editingProduct) {
         const { error } = await supabase
@@ -191,16 +236,42 @@ export default function Products() {
           .eq('id', editingProduct.id);
 
         if (error) throw error;
-        setSuccess('Product updated successfully!');
+        productId = editingProduct.id;
+        
+        // Delete existing document associations
+        await supabase
+          .from('loan_product_documents')
+          .delete()
+          .eq('loan_product_id', productId);
       } else {
-        const { error } = await supabase
+        const { data: newProduct, error } = await supabase
           .from('loan_products')
-          .insert([productData]);
+          .insert([productData])
+          .select()
+          .single();
 
         if (error) throw error;
-        setSuccess('Product created successfully!');
+        productId = newProduct.id;
       }
 
+      // Save document associations
+      if (selectedDocuments.length > 0) {
+        const documentAssociations = selectedDocuments.map(doc => ({
+          loan_product_id: productId,
+          document_type_id: doc.document_type_id,
+          is_mandatory: doc.is_mandatory,
+          custom_instructions: doc.custom_instructions || null,
+          display_order: doc.display_order,
+        }));
+
+        const { error: docError } = await supabase
+          .from('loan_product_documents')
+          .insert(documentAssociations);
+
+        if (docError) throw docError;
+      }
+
+      setSuccess(editingProduct ? 'Product updated successfully!' : 'Product created successfully!');
       setDialogOpen(false);
       fetchProducts();
     } catch (err: any) {
@@ -723,6 +794,14 @@ export default function Products() {
                   </FormItem>
                 )}
               />
+
+              <div className="space-y-4">
+                <DocumentSelector
+                  documentTypes={documentTypes}
+                  selectedDocuments={selectedDocuments}
+                  onChange={setSelectedDocuments}
+                />
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

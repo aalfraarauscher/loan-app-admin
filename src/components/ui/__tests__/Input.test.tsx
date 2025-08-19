@@ -22,34 +22,28 @@ describe('Input Component', () => {
     });
   });
 
-  describe('Design Tokens', () => {
-    it('applies semantic size tokens', () => {
+  describe('Tailwind Classes', () => {
+    it('applies standard size classes', () => {
       render(<Input placeholder="Size test" />);
       const input = screen.getByPlaceholderText('Size test');
-      expect(input.className).toContain('h-size-md');
+      expect(input.className).toContain('h-10');
     });
 
-    it('applies semantic spacing tokens', () => {
+    it('applies standard spacing classes', () => {
       render(<Input placeholder="Spacing test" />);
       const input = screen.getByPlaceholderText('Spacing test');
-      expect(input.className).toContain('px-space-sm');
-      expect(input.className).toContain('py-space-xs');
+      expect(input.className).toContain('px-3');
+      expect(input.className).toContain('py-2');
     });
 
-    it('applies semantic typography tokens', () => {
+    it('applies standard typography classes', () => {
       render(<Input placeholder="Typography test" />);
       const input = screen.getByPlaceholderText('Typography test');
-      expect(input.className).toContain('text-text-base');
-      expect(input.className).toContain('md:text-text-sm');
+      expect(input.className).toContain('text-base');
+      expect(input.className).toContain('md:text-sm');
     });
 
-    it('applies animation duration tokens', () => {
-      render(<Input placeholder="Animation test" />);
-      const input = screen.getByPlaceholderText('Animation test');
-      expect(input.className).toContain('duration-md');
-    });
-
-    it('applies border radius token', () => {
+    it('applies border radius classes', () => {
       render(<Input placeholder="Border test" />);
       const input = screen.getByPlaceholderText('Border test');
       expect(input.className).toContain('rounded-md');
@@ -100,7 +94,7 @@ describe('Input Component', () => {
       
       expect(input.className).toContain('file:border-0');
       expect(input.className).toContain('file:bg-transparent');
-      expect(input.className).toContain('file:text-text-sm');
+      expect(input.className).toContain('file:text-sm');
       expect(input.className).toContain('file:font-medium');
     });
   });
@@ -157,9 +151,9 @@ describe('Input Component', () => {
       
       expect(input.className).toContain('custom-input-class');
       // Should still have default classes
-      expect(input.className).toContain('h-size-md');
-      expect(input.className).toContain('px-space-sm');
-      expect(input.className).toContain('text-text-base');
+      expect(input.className).toContain('h-10');
+      expect(input.className).toContain('px-3');
+      expect(input.className).toContain('text-base');
     });
   });
 

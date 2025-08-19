@@ -10,8 +10,6 @@ import {
   LogOut,
   Menu,
   ChevronLeft,
-  Settings,
-  User,
   FileText
 } from 'lucide-react';
 import { useState } from 'react';
@@ -38,6 +36,7 @@ export default function Layout() {
     { name: 'Organization', href: '/organization', icon: Building2 },
     { name: 'Theme', href: '/theme', icon: Palette },
     { name: 'Products', href: '/products', icon: Package },
+    { name: 'Documents', href: '/documents', icon: FileText },
     { name: 'Applications', href: '/applications', icon: FileText },
     { name: 'Users', href: '/users', icon: Users },
     { name: 'Integrations', href: '/integrations', icon: Webhook },
