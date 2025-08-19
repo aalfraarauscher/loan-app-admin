@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import React from 'react'
+import type { ReactElement } from 'react'
+import { render } from '@testing-library/react'
+import type { RenderOptions } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 
@@ -18,7 +20,7 @@ vi.mock('@/lib/supabase', () => ({
         },
       })),
     },
-    from: vi.fn((table: string) => ({
+    from: vi.fn(() => ({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
@@ -28,7 +30,7 @@ vi.mock('@/lib/supabase', () => ({
       order: vi.fn().mockReturnThis(),
     })),
     storage: {
-      from: vi.fn((bucket: string) => ({
+      from: vi.fn(() => ({
         upload: vi.fn(),
         getPublicUrl: vi.fn(),
         remove: vi.fn(),

@@ -16,11 +16,7 @@ import {
   Palette,
   Type,
   Layout,
-  Loader2,
-  Smartphone,
-  Eye,
-  Sun,
-  Moon
+  Loader2
 } from 'lucide-react';
 import {
   Form,
@@ -31,7 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { cn } from '@/lib/utils';
 
 const themeSchema = z.object({
   primary: z.string().regex(/^#[0-9A-F]{6}$/i, 'Must be a valid hex color'),
@@ -98,14 +93,14 @@ export default function Theme() {
   const [currentTheme, setCurrentTheme] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // const [isDarkMode, setIsDarkMode] = useState(false);
 
   const form = useForm<ThemeFormData>({
     resolver: zodResolver(themeSchema),
     defaultValues: defaultTheme,
   });
 
-  const watchedValues = form.watch();
+  // const watchedValues = form.watch();
 
   useEffect(() => {
     fetchThemeConfig();
@@ -316,7 +311,7 @@ export default function Theme() {
         </p>
       </div>
 
-      <Alert variant="info">
+      <Alert variant="default">
         <AlertDescription>
           <strong>Note:</strong> Currently, only <strong>Primary</strong> and <strong>Secondary</strong> colors 
           affect the mobile app appearance. Other settings are saved for future use. 
@@ -744,7 +739,7 @@ export default function Theme() {
               )}
 
               {success && (
-                <Alert variant="success">
+                <Alert variant="default">
                   {success}
                 </Alert>
               )}

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, userEvent } from '@/__tests__/utils/test-utils'
 import Login from '../Login'
-import { supabase } from '@/lib/supabase'
 
 vi.mock('@/lib/supabase')
 

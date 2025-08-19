@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { format } from 'date-fns';
 import {
   Table,
   TableBody,
@@ -16,12 +17,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,42 +32,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { 
-  Users, 
-  Search, 
-  Download, 
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Search,
+  Users,
+  Download,
+  RefreshCw,
   MoreVertical,
+  Eye,
+  FileText,
+  Bell,
+  User,
+  Shield,
+  CreditCard,
+  Clock,
+  Send,
+  Loader2,
+  AlertCircle,
   UserCheck,
   Calendar,
   Activity,
   Phone,
   Mail,
-  FileText,
-  AlertCircle,
-  Filter,
-  RefreshCw,
-  Eye,
-  Send,
-  User,
-  Shield,
-  Clock,
-  CreditCard,
-  Loader2,
-  Bell
 } from 'lucide-react';
-import { format } from 'date-fns';
 
 export default function UsersPage() {
   const navigate = useNavigate();

@@ -61,11 +61,9 @@ import {
   TestTube,
   MoreHorizontal,
   Loader2,
-  AlertCircle,
   CheckCircle2,
   XCircle,
   ArrowRight,
-  Copy,
   Eye,
   EyeOff,
   RefreshCw,
@@ -189,10 +187,10 @@ export default function Integrations() {
   const [logs, setLogs] = useState<WebhookLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
+  // const [testing, setTesting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
-  const [logsDialogOpen, setLogsDialogOpen] = useState(false);
+  // const [logsDialogOpen, setLogsDialogOpen] = useState(false);
   const [editingIntegration, setEditingIntegration] = useState<WebhookIntegration | null>(null);
   const [selectedIntegration, setSelectedIntegration] = useState<WebhookIntegration | null>(null);
   const [editingMapping, setEditingMapping] = useState<FieldMapping | null>(null);
@@ -399,7 +397,7 @@ export default function Integrations() {
   };
 
   const testWebhook = async (integration: WebhookIntegration) => {
-    setTesting(true);
+    // setTesting(true);
     setTestResult(null);
 
     try {
@@ -442,7 +440,7 @@ export default function Integrations() {
         error: err.message,
       });
     } finally {
-      setTesting(false);
+      // setTesting(false);
     }
   };
 
@@ -577,7 +575,7 @@ export default function Integrations() {
       )}
 
       {success && (
-        <Alert variant="success">
+        <Alert variant="default">
           <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}
@@ -637,7 +635,7 @@ export default function Integrations() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={integration.is_active ? "success" : "secondary"}>
+                        <Badge variant={integration.is_active ? "secondary" : "outline"}>
                           {integration.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                         <Switch
@@ -932,9 +930,9 @@ export default function Integrations() {
                         <TableCell>
                           <Badge 
                             variant={
-                              log.status === 'success' ? 'success' : 
+                              log.status === 'success' ? 'secondary' : 
                               log.status === 'failed' ? 'destructive' : 
-                              'secondary'
+                              'outline'
                             }
                           >
                             {log.status}

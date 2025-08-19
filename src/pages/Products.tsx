@@ -93,7 +93,7 @@ export default function Products() {
   const [success, setSuccess] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDocuments, setSelectedDocuments] = useState<Partial<LoanProductDocument>[]>([]);
-  const [productDocuments, setProductDocuments] = useState<LoanProductDocument[]>([]);
+  // const [productDocuments, setProductDocuments] = useState<LoanProductDocument[]>([]);
   
   const { documentTypes } = useDocumentTypes();
 
@@ -366,7 +366,7 @@ export default function Products() {
       )}
 
       {success && (
-        <Alert variant="success">
+        <Alert variant="default">
           <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}

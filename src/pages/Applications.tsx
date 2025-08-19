@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useApplications } from '@/hooks/useApplications';
 import type { LoanApplication } from '@/hooks/useApplications';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -52,22 +52,17 @@ import {
   Clock,
   DollarSign,
   User,
-  Phone,
-  Mail,
   Calendar,
   Briefcase,
   FileText,
   AlertCircle,
   RefreshCw,
-  Download,
-  Filter,
   ArrowUpDown,
   Loader2,
   Webhook,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function Applications() {
   const [searchParams] = useSearchParams();
@@ -123,10 +118,10 @@ export default function Applications() {
     }
   };
 
-  const getStatusVariant = (status: LoanApplication['status']) => {
+  const getStatusVariant = (status: LoanApplication['status']): 'default' | 'destructive' | 'secondary' => {
     switch (status) {
       case 'approved':
-        return 'success';
+        return 'secondary'; // Changed from 'success' which doesn't exist
       case 'rejected':
         return 'destructive';
       case 'disbursed':
@@ -290,7 +285,7 @@ export default function Applications() {
       )}
 
       {success && (
-        <Alert variant="success">
+        <Alert variant="default">
           <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}

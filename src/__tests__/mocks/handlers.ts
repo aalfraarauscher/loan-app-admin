@@ -125,15 +125,14 @@ export const handlers = [
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/organization_config`, async ({ request }) => {
-    const body = await request.json()
-    const url = new URL(request.url)
+    const body = await request.json() as any
     
     // Simulate successful update
     return HttpResponse.json([{ ...mockOrganizationConfig, ...body }])
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/organization_config`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as any
     
     return HttpResponse.json([{
       id: 'new-org-config-id',
@@ -149,7 +148,7 @@ export const handlers = [
   }),
 
   http.post(`${SUPABASE_URL}/rest/v1/loan_products`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as any
     
     return HttpResponse.json([{
       id: `product-${Date.now()}`,
@@ -160,7 +159,7 @@ export const handlers = [
   }),
 
   http.patch(`${SUPABASE_URL}/rest/v1/loan_products`, async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as any
     const url = new URL(request.url)
     const id = url.searchParams.get('id')?.replace('eq.', '')
     
@@ -191,7 +190,7 @@ export const handlers = [
   }),
 
   // Storage endpoints
-  http.post(`${SUPABASE_URL}/storage/v1/object/organization-logos/*`, async ({ request }) => {
+  http.post(`${SUPABASE_URL}/storage/v1/object/organization-logos/*`, async () => {
     // Simulate successful upload
     return HttpResponse.json({
       Key: 'logos/test-logo.png',

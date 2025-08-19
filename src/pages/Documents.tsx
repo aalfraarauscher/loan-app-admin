@@ -10,14 +10,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import type { DocumentType } from '@/types';
+import { useDocumentTypes } from '@/hooks/useDocumentTypes';
+import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 import {
   Table,
   TableBody,
@@ -26,6 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,34 +48,23 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Plus,
+  Search,
+  FileText,
+  ChevronUp,
+  ChevronDown,
+  Info,
   Edit,
   Trash2,
   Save,
-  FileText,
-  MoreHorizontal,
   Loader2,
-  Search,
   Clock,
   HardDrive,
   FileType,
+  MoreHorizontal,
   CheckCircle2,
   XCircle,
-  Info,
-  ChevronUp,
-  ChevronDown,
 } from 'lucide-react';
-import type { DocumentType } from '@/types';
-import { useDocumentTypes } from '@/hooks/useDocumentTypes';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
 
 const FILE_TYPE_OPTIONS = [
   { value: 'pdf', label: 'PDF' },
@@ -291,7 +284,7 @@ export default function Documents() {
       )}
 
       {success && (
-        <Alert variant="success">
+        <Alert variant="default">
           <AlertDescription>{success}</AlertDescription>
         </Alert>
       )}

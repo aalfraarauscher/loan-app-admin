@@ -629,7 +629,7 @@ export default function Organization() {
           )}
 
           {success && (
-            <Alert variant="success">
+            <Alert variant="default">
               <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}

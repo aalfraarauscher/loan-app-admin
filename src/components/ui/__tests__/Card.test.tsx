@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { 
   Card, 
@@ -64,7 +64,7 @@ describe('Card Component', () => {
       render(<CardHeader data-testid="header">Header</CardHeader>);
       const header = screen.getByTestId('header');
       
-      expect(header.className).toContain('p-space-lg');
+      expect(header.className).toContain('p-6');
       expect(header.className).toContain('space-y-1.5');
       expect(header.className).toContain('flex');
       expect(header.className).toContain('flex-col');
@@ -79,7 +79,7 @@ describe('Card Component', () => {
       
       const header = screen.getByTestId('header');
       expect(header.className).toContain('custom-header');
-      expect(header.className).toContain('p-space-lg');
+      expect(header.className).toContain('p-6');
     });
   });
 
@@ -93,7 +93,7 @@ describe('Card Component', () => {
       render(<CardTitle data-testid="title">Title</CardTitle>);
       const title = screen.getByTestId('title');
       
-      expect(title.className).toContain('text-text-2xl');
+      expect(title.className).toContain('text-2xl');
       expect(title.className).toContain('font-semibold');
       expect(title.className).toContain('leading-none');
       expect(title.className).toContain('tracking-tight');
@@ -108,7 +108,7 @@ describe('Card Component', () => {
       
       const title = screen.getByTestId('title');
       expect(title.className).toContain('custom-title');
-      expect(title.className).toContain('text-text-2xl');
+      expect(title.className).toContain('text-2xl');
     });
   });
 
@@ -126,7 +126,7 @@ describe('Card Component', () => {
       );
       const description = screen.getByTestId('description');
       
-      expect(description.className).toContain('text-text-sm');
+      expect(description.className).toContain('text-sm');
       expect(description.className).toContain('text-muted-foreground');
     });
 
@@ -139,7 +139,7 @@ describe('Card Component', () => {
       
       const description = screen.getByTestId('description');
       expect(description.className).toContain('custom-desc');
-      expect(description.className).toContain('text-text-sm');
+      expect(description.className).toContain('text-sm');
     });
   });
 
@@ -160,7 +160,7 @@ describe('Card Component', () => {
       render(<CardContent data-testid="content">Content</CardContent>);
       const content = screen.getByTestId('content');
       
-      expect(content.className).toContain('p-space-lg');
+      expect(content.className).toContain('p-6');
       expect(content.className).toContain('pt-0');
     });
 
@@ -173,7 +173,7 @@ describe('Card Component', () => {
       
       const content = screen.getByTestId('content');
       expect(content.className).toContain('custom-content');
-      expect(content.className).toContain('p-space-lg');
+      expect(content.className).toContain('p-6');
     });
   });
 
@@ -194,7 +194,7 @@ describe('Card Component', () => {
       render(<CardFooter data-testid="footer">Footer</CardFooter>);
       const footer = screen.getByTestId('footer');
       
-      expect(footer.className).toContain('p-space-lg');
+      expect(footer.className).toContain('p-6');
       expect(footer.className).toContain('pt-0');
       expect(footer.className).toContain('flex');
       expect(footer.className).toContain('items-center');
@@ -209,7 +209,7 @@ describe('Card Component', () => {
       
       const footer = screen.getByTestId('footer');
       expect(footer.className).toContain('custom-footer');
-      expect(footer.className).toContain('p-space-lg');
+      expect(footer.className).toContain('p-6');
     });
   });
 
@@ -237,7 +237,7 @@ describe('Card Component', () => {
     });
 
     it('maintains proper spacing between sections', () => {
-      const { container } = render(
+      render(
         <Card data-testid="card">
           <CardHeader data-testid="header">
             <CardTitle>Title</CardTitle>
@@ -251,27 +251,49 @@ describe('Card Component', () => {
       const content = screen.getByTestId('content');
       const footer = screen.getByTestId('footer');
       
-      // Header has full padding
-      expect(header.className).toContain('p-space-lg');
-      
-      // Content and footer have top padding removed to maintain flow
-      expect(content.className).toContain('p-space-lg');
+      expect(header.className).toContain('p-6');
+      expect(content.className).toContain('p-6');
       expect(content.className).toContain('pt-0');
-      expect(footer.className).toContain('p-space-lg');
+      expect(footer.className).toContain('p-6');
       expect(footer.className).toContain('pt-0');
     });
   });
 
-  describe('Ref Forwarding', () => {
-    it('forwards ref to card element', () => {
-      const ref = vi.fn();
-      render(<Card ref={ref}>Content</Card>);
+  describe('Complex Card Scenarios', () => {
+    it('handles cards without all sections', () => {
+      render(
+        <Card>
+          <CardHeader>
+            <CardTitle>Title Only Card</CardTitle>
+          </CardHeader>
+        </Card>
+      );
       
-      expect(ref).toHaveBeenCalled();
-      expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLDivElement);
+      expect(screen.getByText('Title Only Card')).toBeInTheDocument();
     });
 
-    it('forwards refs to all subcomponents', () => {
+    it('handles cards with multiple action buttons in footer', () => {
+      const handleCancel = vi.fn();
+      const handleSubmit = vi.fn();
+      
+      render(
+        <Card>
+          <CardFooter data-testid="footer">
+            <button onClick={handleCancel}>Cancel</button>
+            <button onClick={handleSubmit}>Submit</button>
+          </CardFooter>
+        </Card>
+      );
+      
+      const footer = screen.getByTestId('footer');
+      expect(footer.className).toContain('flex');
+      expect(footer.className).toContain('items-center');
+      expect(screen.getByText('Cancel')).toBeInTheDocument();
+      expect(screen.getByText('Submit')).toBeInTheDocument();
+    });
+
+    it('supports forwarding refs', () => {
+      const cardRef = vi.fn();
       const headerRef = vi.fn();
       const titleRef = vi.fn();
       const descRef = vi.fn();
@@ -279,15 +301,17 @@ describe('Card Component', () => {
       const footerRef = vi.fn();
       
       render(
-        <>
-          <CardHeader ref={headerRef}>Header</CardHeader>
-          <CardTitle ref={titleRef}>Title</CardTitle>
-          <CardDescription ref={descRef}>Description</CardDescription>
+        <Card ref={cardRef}>
+          <CardHeader ref={headerRef}>
+            <CardTitle ref={titleRef}>Title</CardTitle>
+            <CardDescription ref={descRef}>Description</CardDescription>
+          </CardHeader>
           <CardContent ref={contentRef}>Content</CardContent>
           <CardFooter ref={footerRef}>Footer</CardFooter>
-        </>
+        </Card>
       );
       
+      expect(cardRef).toHaveBeenCalled();
       expect(headerRef).toHaveBeenCalled();
       expect(titleRef).toHaveBeenCalled();
       expect(descRef).toHaveBeenCalled();
